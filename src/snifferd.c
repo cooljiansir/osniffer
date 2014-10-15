@@ -126,10 +126,10 @@ void getlist(){
 	printf("]");
 }
 void _ERROR_(){
-	printf("error");
+	printf("{\"result\":\"error\"}");
 }
 void _SUCCESS_(){
-	printf("success");
+	printf("{\"result\":\"success\"}");
 }
 void serveone(){
 	//最多5个参数
@@ -161,38 +161,28 @@ void serveone(){
 			getlist();
 		}
 		else if(strcmp(param[0],CMD_SET_SELECT)==0){
-			if(params!=3){
+			if(params!=2){
 				_ERROR_();
 			}else{
 				int res = 0;
 				for(d=alldevs,pinf = allinfs;d;d=d->next,pinf=pinf->next){
 					if(strcmp(d->name,param[1])==0){
-						if(strcmp("on",param[2])==0){
-							res = 1;
-							pinf->selected = 1;
-						}else if(strcmp("off",param[2])==0){
-							res = 1;
-							pinf->selected = 0;
-						}
+						pinf->selected = !pinf->selected;
+						res = 1;
 					}
 				}
 				if(!res)_ERROR_();
 				else _SUCCESS_();
 			}
 		}else if(strcmp(param[0],CMD_SET_PMODE)==0){
-                        if(params!=3){
+                        if(params!=2){
                                 _ERROR_();
                         }else{
                                 int res = 0;
                                 for(d=alldevs,pinf = allinfs;d;d=d->next,pinf=pinf->next){
                                         if(strcmp(d->name,param[1])==0){
-                                                if(strcmp("on",param[2])==0){
-                                                        res = 1;
-                                                        pinf->pmode = 1;
-                                                }else if(strcmp("off",param[2])==0){
-                                                        res = 1;
-                                                        pinf->pmode = 0;
-                                                }
+                                        	res = 1;
+                                                pinf->pmode = !pinf->pmode;
                                         }
                                 }
                                 if(!res)_ERROR_();

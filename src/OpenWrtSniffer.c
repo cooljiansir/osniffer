@@ -4,9 +4,12 @@
 
 
 void getlist();
+void switch_select(char *name);
+void switch_pmode(char *name);
 
 int main(){
 	char *action;
+	char *name;
 	
 	if (cgl_initenv() == -1) {
                 cgl_perror(stderr, "testcgl");
@@ -18,14 +21,22 @@ int main(){
 	}
 	cgl_content_header("text/plain");
 	action = cgl_getvalue("action");
+	name = cgl_getvalue("name");
 	if(action==NULL){
 		printf("No Action defined!");
 		exit(1);
 	}
 	if(strcmp("inter_list",action)==0){
 		getlist();
-	}else {
-		
+	}else if(strcmp("switch_select",action)==0){
+		if(name!=NULL)
+			switch_select(name);
+		else printf("No name defined!");
+	}
+	else if(strcmp("switch_pmode",action)==0){
+		if(name!=NULL)
+			switch_pmode(name);
+		else printf("No name defined");
 	}
 	return 0;
 }
