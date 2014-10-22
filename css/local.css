@@ -1,0 +1,29 @@
+.min-height{
+	min-height:550px
+}
+#pkgtablediv{
+	height:400px;
+	overflow-y:auto;
+}
+#pkgtablediv .tableFloatingHeaderOriginal{
+	background-color:#ffffff;
+}
+#pkgdetail_2 div div{
+	width:24px;
+	display:inline-block;
+}
+#pkgdetail_3 div div{
+	width:12px;
+	display:inline-block;
+}
+#pkgdetail{
+	height:200px;
+	overflow-y:auto;
+}
+#ptldetail{
+	height:200px;
+	overflow-y:auto;	
+}
+.bg-clr-ylw{
+	background-color:yellow;
+}
