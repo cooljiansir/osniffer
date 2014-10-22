@@ -6,10 +6,14 @@
 void getlist();
 void switch_select(char *name);
 void switch_pmode(char *name);
+void getcap();
+void setfilter(char *expr);
+
 
 int main(){
 	char *action;
 	char *name;
+	char *expr;
 	
 	if (cgl_initenv() == -1) {
                 cgl_perror(stderr, "testcgl");
@@ -22,6 +26,7 @@ int main(){
 	cgl_content_header("text/plain");
 	action = cgl_getvalue("action");
 	name = cgl_getvalue("name");
+	expr = cgl_getvalue("expr");
 	if(action==NULL){
 		printf("No Action defined!");
 		exit(1);
@@ -37,6 +42,16 @@ int main(){
 		if(name!=NULL)
 			switch_pmode(name);
 		else printf("No name defined");
+	}else if(strcmp("getcap",action)==0){
+		getcap();
+	}else if(strcmp("opencap",action)==0){
+		opencap();
+	}else if(strcmp("closecap",action)==0){
+		closecap();
+	}else if(strcmp("setfilter",action)==0){
+		if(expr!=NULL)
+			setfilter(expr);
+		else printf("No expr defined!");
 	}
 	return 0;
 }

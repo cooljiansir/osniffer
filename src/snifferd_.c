@@ -20,16 +20,15 @@ char cmdbuff[CMD_BUFF_SIZE];
 
 void opencap();
 void closecap();
-void setfilter(char *);
 
 void printpair(char *key,char *value){
-	fprintf(fout,",\"%s\":\"%s\"",key,value);
+	printf(",\"%s\":\"%s\"",key,value);
 }
 void printpaird(char *key,int num){
-	fprintf(fout,",\"%s\":\"%d\"",key,num);
+	printf(",\"%s\":\"%d\"",key,num);
 }
 void printpairfirst(char *key,char *value){
-	fprintf(fout,"\"%s\":\"%s\"",key,value);
+	printf("\"%s\":\"%s\"",key,value);
 }
 
 void freeInfs(){
@@ -89,11 +88,11 @@ void getlist(){
 			return;
 	}
 
-	fprintf(fout,"[");
+	printf("[");
         for(d=alldevs,pinf=allinfs;d;d=d->next,pinf=pinf->next){
 		countdevs++;
-		if(countdevs>1)fprintf(fout,",");
-		fprintf(fout,"{");
+		if(countdevs>1)printf(",");
+		printf("{");
 		printpairfirst("name",d->name);
 		printpaird("selected",pinf->selected);
 		printpaird("packes",pinf->packets);
@@ -102,33 +101,33 @@ void getlist(){
 			printpair("description",d->description);
 		else printpair("description","none");
                 paddr = d->addresses;
-		fprintf(fout,",\"ips\":[");
+		printf(",\"ips\":[");
 		countips=0;
                 while(paddr){
                         if(paddr->addr->sa_family == AF_INET||paddr->addr->sa_family == AF_INET6){
 				countips++;
-				if(countips>1)fprintf(fout,",{");
-				else fprintf(fout,"{");
+				if(countips>1)printf(",{");
+				else printf("{");
 	                        if(paddr->addr->sa_family == AF_INET6){
         	                        inet_ntop(AF_INET6,&((struct sockaddr_in6 *)paddr->addr)->sin6_addr, straddr,sizeof(straddr));
                         	       	printpairfirst("ip",straddr);
                         	}
 				else 
 					printpairfirst("ip",inet_ntoa(((struct sockaddr_in*)paddr->addr)->sin_addr));
-				fprintf(fout,"}");
+				printf("}");
 			}
                         paddr = paddr->next;
                 }
-		fprintf(fout,"]");
-                fprintf(fout,"}");
+		printf("]");
+                printf("}");
         }
-	fprintf(fout,"]");
+	printf("]");
 }
 void _ERROR_(){
-	fprintf(fout,"{\"result\":\"error\"}");
+	printf("{\"result\":\"error\"}");
 }
 void _SUCCESS_(){
-	fprintf(fout,"{\"result\":\"success\"}");
+	printf("{\"result\":\"success\"}");
 }
 void serveone(){
 	//最多5个参数
@@ -150,15 +149,11 @@ void serveone(){
 	fcmd = stdin;
 #else
 	fcmd = fopen(P_FIFO,"r");
+	freopen(FIFO_OUT,"w",stdout);
 #endif
 
 	//如果写端关闭了连接,会退出
 	while(fgets(cmdbuff,CMD_BUFF_SIZE,fcmd)>0){
-#ifdef DEBUG
-        fout = stdout;
-#else
-        fout = fopen(FIFO_OUT,"w");
-#endif
 		params = sscanf(cmdbuff,"%s %s %s %s %s",param[0],param[1],param[2],param[3],param[4]);
 		if(strcmp(param[0],CMD_GETLIST)==0){
 			getlist();
@@ -192,24 +187,13 @@ void serveone(){
 				else _SUCCESS_();
                         }
 		}else if(strcmp(param[0],CMD_OPENCAP)==0){
-			_SUCCESS_();
 			opencap();
 		}else if(strcmp(param[0],CMD_CLOSECAP)==0){
-			_SUCCESS_();
 			closecap();
-		}else if(strcmp(param[0],CMD_SETFILTER)==0){
-			if(params!=2){
-				_ERROR_();
-			}else{
-				int i;
-				for(i = 0;param[1][i];i++)
-					if(param[1][i]=='_')param[1][i]=' ';
-				setfilter(param[1]);
-			}
 		}
-		fclose(fout);
 	}
 	fclose(fcmd);
+	fclose(stdout);
 }
 
 void doserve(){

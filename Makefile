@@ -11,7 +11,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/OpenWrtSniffer
 	SECTION:=utils
 	CATEGORY:=Utilitities
-	DEPENDS+=libpcap
+	DEPENDS+=libpcap libpthread
 	TITLE:=OpenWrtSniffer -- A Sniffer of OpenWrt
 endef
 
@@ -31,4 +31,4 @@ define Package/OpenWrtSniffer/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/snifferd $(1)/webroot/cgi-bin/snifferd
 endef
 
-$(eval $(call BuildPackage,OpenWrtSniffer,+libpcap))
+$(eval $(call BuildPackage,OpenWrtSniffer,+libpcap +libpthread))
