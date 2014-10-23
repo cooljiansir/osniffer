@@ -19,10 +19,13 @@
 #pkgdetail{
 	height:200px;
 	overflow-y:auto;
+	background-color:white;
+	margin-top:20px;
 }
 #ptldetail{
 	height:200px;
-	overflow-y:auto;	
+	overflow-y:auto;
+	background-color:white;
 }
 .bg-clr-ylw{
 	background-color:yellow;

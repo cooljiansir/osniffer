@@ -192,9 +192,9 @@
 	    </div>
 	    <div id="pkgdetail" name="pkgdetail" class="grid fluid">
 		<div class="row">
-			<div id="pkgdetail_1" name="pkgdetail_1" class="span1"><div>0000</div><div>0010</div><div>0020</div><div>0030</div></div>
-			<div id="pkgdetail_2" name="pkgdetail_2" class="span5"><div><div>01</div> 00 5e ff ff 34 34 32  01 00 5e ff ff 34 34 32</div></div>
-			<div id="pkgdetail_3" name="pkgdetail_3" class="span5"><div>0123456789ABCDEF</div></div>
+			<div id="pkgdetail_1" name="pkgdetail_1" class="span1"></div>
+			<div id="pkgdetail_2" name="pkgdetail_2" class="span5"></div>
+			<div id="pkgdetail_3" name="pkgdetail_3" class="span5"></div>
 		</div>
 	    </div>
 	</div>
@@ -204,6 +204,10 @@
     <script src="js/hitua.js"></script>
     <script >
 	$countcap = 0;
+	$pro_src = "";
+	$pro_des = "";
+	$pro_ = "";
+	$pro_info = "";
 	function showdatabin(data){
 		$str1 = "";
 		$str2 = "";
@@ -258,6 +262,44 @@
 			    { label: 'Type: '+$typet[$type]+' (0x'+$type+')', id: 3 ,begin_:12,end_:13}
 			]
 		});
+		$pro_src = $src;
+		$pro_des = $des;
+		$pro_ = $typet[$type];
+		$pro_info = "";
+		if($type=='0806'){
+			pro_arp(rawdata,data);
+		}
+	}
+	function pro_arp(rawdata,data){
+		$opt={"0001":"ARP request","0002":"ARP reply","0003":"RARP request","0004":"RARP reply","0005":"DRARP request","0006":"DRARP reply","0007":"DRARP Error","0008":"InARP request","0009":"InARP reply"};
+		$hdtype = rawdata[28]+rawdata[29]+rawdata[30]+rawdata[31];
+		$protype = rawdata[32]+rawdata[33]+rawdata[34]+rawdata[35];
+		$hdsize = rawdata[36]+rawdata[37];
+		$prosize = rawdata[38]+rawdata[39];
+		$opcode = rawdata[40]+rawdata[41]+rawdata[42]+rawdata[43];
+		$senderMAC = rawdata[44]+rawdata[45]+":"+rawdata[46]+rawdata[47]+":"+rawdata[48]+rawdata[49]+":"+rawdata[50]+rawdata[51]+":"+rawdata[52]+rawdata[53]+":"+rawdata[54]+rawdata[55];
+		$senderIp = parseInt(rawdata[56]+rawdata[57],16).toString()+"."+parseInt(rawdata[58]+rawdata[59],16).toString()+"."+parseInt(rawdata[60]+rawdata[61],16).toString()+"."+parseInt(rawdata[62]+rawdata[63],16).toString();
+		$tarMAC = rawdata[64]+rawdata[65]+":"+rawdata[66]+rawdata[67]+":"+rawdata[68]+rawdata[69]+":"+rawdata[70]+rawdata[71]+":"+rawdata[72]+rawdata[73]+":"+rawdata[74]+rawdata[75];
+		$tarIp =    parseInt(rawdata[76]+rawdata[77],16).toString()+"."+parseInt(rawdata[78]+rawdata[79],16).toString()+"."+parseInt(rawdata[80]+rawdata[81],16).toString()+"."+parseInt(rawdata[82]+rawdata[83],16).toString();
+		data.push(
+		    {
+			label: 'Address Resolution Protocol ('+$opt[$opcode]+')', id: 1,begin_:14,end_:41,
+			children: [
+			    { label: 'Hardware type: 0x'+$hdtype, id: 2 ,begin_:14,end_:15},
+			    { label: 'Protocol type: 0x'+$protype, id: 3 ,begin_:16,end_:17},
+			    { label: 'Hardware size: 0x'+$hdsize, id: 3 ,begin_:18,end_:18},
+			    { label: 'Protocol size: 0x'+$prosize, id: 3 ,begin_:19,end_:19},
+			    { label: 'Opcode: '+$opt[$opcode]+' (0x'+$opcode+')', id: 3 ,begin_:20,end_:21},
+			    { label: 'Sender MAC address: '+$senderMAC, id: 3 ,begin_:22,end_:27},
+			    { label: 'Sender IP address: '+$senderIp, id: 3 ,begin_:28,end_:31},
+			    { label: 'Target MAC address: '+$tarMAC, id: 3 ,begin_:32,end_:37},
+			    { label: 'Target IP address: '+$tarIp, id: 3 ,begin_:38,end_:41}
+			]
+		});		
+		$pro_src = $senderIp;
+		$pro_des = $tarIp;
+		//$pro_ = $typet[$type];
+		$pro_info = $opt[$opcode];
 	}
 	function showprotocol(rawdata){
 		var data = [];
@@ -325,6 +367,13 @@
 					$("#filtererro").show();
 				}else{
 					$("#filtererro").hide();
+					var not = $.Notify({
+						caption: "Set Filter SUCCEED!",
+						content: "Now,Just Go and Capture!",
+						timeout: 3000 ,
+						style  : {background: 'green', color: 'white'}
+					});
+
 				}
 			});
 		});
@@ -338,7 +387,9 @@
 			if(i>0){
 				$countcap++;
 				$id = "table_tr_" + $countcap.toString();
-				$("#pkgtable tbody").append("<tr id=\""+$id+"\" name=\""+$id+"\"><td>"+$countcap+"</td><td>"+data_i.time+"</td><td>+data_i.src+</td><td>+data_i.des+</td><td>+data_i.pro+</td><td>"+data_i.data.length+"</td><td>+data_i.inf+</td></tr>");
+				da=[];
+				pro_ethernet(data_i.data,da);
+				$("#pkgtable tbody").append("<tr id=\""+$id+"\" name=\""+$id+"\"><td>"+$countcap+"</td><td>"+data_i.time+"</td><td>"+$pro_src+"</td><td>"+$pro_des+"</td><td>"+$pro_+"</td><td>"+data_i.data.length+"</td><td>"+$pro_info+"</td></tr>");
 				$("#pkgtablediv").scrollTop($("#pkgtable").height());
 				$("#"+$id).click(function(){
 					showdatabin(data_i.data);

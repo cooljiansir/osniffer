@@ -2,6 +2,9 @@
 	    <div class="navigation-bar-content container">
 		<a id="navindex" name="navindex" href="#" class="element"><span class="icon-grid-view"></span> OpenWrt Sniffer <sup>1.0</sup></a>
 		<span class="element-divider"></span>
+		<a id="navstart" name="navstart" href="#" class="element">START SERVER</a>
+		
+		<span class="element-divider"></span>
 
 		<a class="element1 pull-menu" href="#"></a>
 		<ul class="element-menu">
@@ -23,7 +26,7 @@
 		    <li>
 		        <a href="#" class="dropdown-toggle">Statistics</a>
 		        <ul class="dropdown-menu dark" data-role="dropdown">
-		            <li><a href="template-news-portal.html">News Portal (msn.com)</a></li>
+		            <li><a href="#">Flow</a></li>
 		        </ul>
 		    </li>
 		    <li>
@@ -77,4 +80,20 @@
 			$(".page_").hide(500);
 			$("#filterpage").show(500);
 		});
+		$serveron = 0;
+		$("#navstart").click(function(){
+			if($serveron==0){
+				$("#navstart").text("SERVER IS ON");
+				$serveron=1;
+				startserver();
+			}
+		});
+		function startserver(){
+			$.getJSON( "/cgi-bin/OpenWrtSniffer?action=startserver", function( data ) {
+				if(data.result!='end'){
+					$("#navstart").text("START SERVER");
+					$serveron=0;
+				}
+			});
+		};
 </script>
