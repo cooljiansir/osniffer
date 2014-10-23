@@ -8,6 +8,7 @@ void switch_select(char *name);
 void switch_pmode(char *name);
 void getcap();
 void setfilter(char *expr);
+void startserver();
 
 
 int main(){
@@ -52,6 +53,8 @@ int main(){
 		if(expr!=NULL)
 			setfilter(expr);
 		else printf("No expr defined!");
+	}else if(strcmp("startserver",action)==0){
+		startserver();
 	}
 	return 0;
 }

@@ -171,4 +171,7 @@ void setfilter(char *expr){
 
         fclose(pout);
 }
-
+void startserver(){
+	system("./snifferd");
+	printf("{\"result\":\"end\"}");
+}
