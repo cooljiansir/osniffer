@@ -2,7 +2,7 @@ osniffer
 =======
 A sniffer on openwrt with a web interface
 -----------------------------------------
-###FEATURE
+###FEATURES
 
 * Full Protocol Support
 * Full Filter Support
