@@ -6,204 +6,77 @@
 #include <fcntl.h>
 
 #include "envi.h"
+#include "pcapserver.h"
 
 //#define DEBUG
 
-
-pcap_if_t *alldevs = NULL;
-struct Interfaces *allinfs = NULL;
-
+/*
+ * this is the main requests router
+ * deals all the requests from pcapfunc.c
+ * call functions in pcapserver.h
+ */
 
 FILE *fcmd;
 FILE *fout;
 char cmdbuff[CMD_BUFF_SIZE];
 
-void opencap();
-void closecap();
-void setfilter(char *);
-
-void printpair(char *key,char *value){
-	fprintf(fout,",\"%s\":\"%s\"",key,value);
-}
-void printpaird(char *key,int num){
-	fprintf(fout,",\"%s\":\"%d\"",key,num);
-}
-void printpairfirst(char *key,char *value){
-	fprintf(fout,"\"%s\":\"%s\"",key,value);
-}
-
-void freeInfs(){
-	struct Interfaces * pinf=allinfs;
-	struct Interfaces * pnext;
-	while(pinf){
-		pnext = pinf->next;
-		free(pinf);
-		pinf = pnext;
-	}
-	if(alldevs){
-		pcap_freealldevs(alldevs);
-	}
-	alldevs = NULL;
-	allinfs = NULL;
-}
-void freshlist(){
-        pcap_if_t *d;
-        char errbuff[PCAP_ERRBUF_SIZE];
-	struct Interfaces *pinf=NULL;
-	
-	freeInfs();
-	
-        if(pcap_findalldevs(&alldevs,errbuff)==-1){
-                //fprintf(stderr,"Error in pcap_findalldevs %s\n",errbuff);
-		alldevs = NULL;
-		allinfs = NULL;
-                return;
-        }
-	for(d=alldevs;d;d=d->next){
-		if(pinf==NULL){
-			allinfs = pinf = (struct Interfaces *)malloc(sizeof(struct Interfaces));
-		}else{
-			pinf->next = (struct Interfaces *)malloc(sizeof(struct Interfaces));
-			pinf = pinf->next;
-		}
-		pinf->next = NULL;
-		pinf->selected = 0;
-		pinf->packets = 0;
-		pinf->pmode = 1;
-		pinf->handle = NULL;
-	}
-}
-void getlist(){
-        pcap_if_t *d;
-        pcap_addr_t *paddr;
-	struct Interfaces *pinf;
-        char straddr[INET6_ADDRSTRLEN];
-        int i=0;
-        char errbuff[PCAP_ERRBUF_SIZE];
-	int countdevs = 0;
-	int countips;
-
-	if(alldevs==NULL){
-		freshlist();
-		if(alldevs==NULL)
-			return;
-	}
-
-	fprintf(fout,"[");
-        for(d=alldevs,pinf=allinfs;d;d=d->next,pinf=pinf->next){
-		countdevs++;
-		if(countdevs>1)fprintf(fout,",");
-		fprintf(fout,"{");
-		printpairfirst("name",d->name);
-		printpaird("selected",pinf->selected);
-		printpaird("packes",pinf->packets);
-		printpaird("pmode",pinf->pmode);
-                if(d->description)
-			printpair("description",d->description);
-		else printpair("description","none");
-                paddr = d->addresses;
-		fprintf(fout,",\"ips\":[");
-		countips=0;
-                while(paddr){
-                        if(paddr->addr->sa_family == AF_INET||paddr->addr->sa_family == AF_INET6){
-				countips++;
-				if(countips>1)fprintf(fout,",{");
-				else fprintf(fout,"{");
-	                        if(paddr->addr->sa_family == AF_INET6){
-        	                        inet_ntop(AF_INET6,&((struct sockaddr_in6 *)paddr->addr)->sin6_addr, straddr,sizeof(straddr));
-                        	       	printpairfirst("ip",straddr);
-                        	}
-				else 
-					printpairfirst("ip",inet_ntoa(((struct sockaddr_in*)paddr->addr)->sin_addr));
-				fprintf(fout,"}");
-			}
-                        paddr = paddr->next;
-                }
-		fprintf(fout,"]");
-                fprintf(fout,"}");
-        }
-	fprintf(fout,"]");
-}
-void _ERROR_(){
-	fprintf(fout,"{\"result\":\"error\"}");
-}
-void _SUCCESS_(){
-	fprintf(fout,"{\"result\":\"success\"}");
-}
-void serveone(){
-	//最多5个参数
+void serveone() {
+	//at most 5 params
 	char param[5][1024];
 	int params;
-	
-	pcap_if_t *d;
-	struct Interfaces *pinf;
-	
-	if(access(P_FIFO,F_OK)!=0){
-		if(mkfifo(P_FIFO,0777)<0)
+
+	if (access(P_FIFO, F_OK) != 0) {
+		if (mkfifo(P_FIFO, 0777) < 0)
 			return;
 	}
-	if(access(FIFO_OUT,F_OK)!=0){
-		if(mkfifo(FIFO_OUT,0777)<0)
+	if (access(FIFO_OUT, F_OK) != 0) {
+		if (mkfifo(FIFO_OUT, 0777) < 0)
 			return;
 	}
 #ifdef DEBUG
 	fcmd = stdin;
 #else
-	fcmd = fopen(P_FIFO,"r");
+	fcmd = fopen(P_FIFO, "r");
 #endif
 
-	//如果写端关闭了连接,会退出
-	while(fgets(cmdbuff,CMD_BUFF_SIZE,fcmd)>0){
+	//if the reader disconnects,then break
+	while (fgets(cmdbuff, CMD_BUFF_SIZE, fcmd) > 0) {
 #ifdef DEBUG
-        fout = stdout;
+		fout = stdout;
 #else
-        fout = fopen(FIFO_OUT,"w");
+		fout = fopen(FIFO_OUT, "w");
 #endif
-		params = sscanf(cmdbuff,"%s %s %s %s %s",param[0],param[1],param[2],param[3],param[4]);
-		if(strcmp(param[0],CMD_GETLIST)==0){
+		params = sscanf(cmdbuff, "%s %s %s %s %s", param[0], param[1], param[2],
+				param[3], param[4]);
+		if (strcmp(param[0], CMD_GETLIST) == 0) {
 			getlist();
-		}
-		else if(strcmp(param[0],CMD_SET_SELECT)==0){
-			if(params!=2){
+		} else if (strcmp(param[0], CMD_SET_SELECT) == 0) {
+			if (params != 2) {
 				_ERROR_();
-			}else{
-				int res = 0;
-				for(d=alldevs,pinf = allinfs;d;d=d->next,pinf=pinf->next){
-					if(strcmp(d->name,param[1])==0){
-						pinf->selected = !pinf->selected;
-						res = 1;
-					}
-				}
-				if(!res)_ERROR_();
-				else _SUCCESS_();
+			} else {
+				setselect(param[1]);
 			}
-		}else if(strcmp(param[0],CMD_SET_PMODE)==0){
-                        if(params!=2){
-                                _ERROR_();
-                        }else{
-                                int res = 0;
-                                for(d=alldevs,pinf = allinfs;d;d=d->next,pinf=pinf->next){
-                                        if(strcmp(d->name,param[1])==0){
-                                        	res = 1;
-                                                pinf->pmode = !pinf->pmode;
-                                        }
-                                }
-                                if(!res)_ERROR_();
-				else _SUCCESS_();
-                        }
-		}else if(strcmp(param[0],CMD_OPENCAP)==0){
+		} else if (strcmp(param[0], CMD_SET_PMODE) == 0) {
+			if (params != 2) {
+				_ERROR_();
+			} else {
+				setpmode(param[1]);
+			}
+		} else if (strcmp(param[0], CMD_OPENCAP) == 0) {
 			_SUCCESS_();
 			opencap();
-		}else if(strcmp(param[0],CMD_CLOSECAP)==0){
+		} else if (strcmp(param[0], CMD_CLOSECAP) == 0) {
 			_SUCCESS_();
 			closecap();
-		}else if(strcmp(param[0],CMD_SETFILTER)==0){
-			if(params!=2){
+		} else if (strcmp(param[0], CMD_SETFILTER) == 0) {
+			if (params != 2) {
 				_ERROR_();
-			}else{
+			} else {
+				//use '_' replaces ' '
 				int i;
-				for(i = 0;param[1][i];i++)
-					if(param[1][i]=='_')param[1][i]=' ';
+				for (i = 0; param[1][i]; i++)
+					if (param[1][i] == '_')
+						param[1][i] = ' ';
 				setfilter(param[1]);
 			}
 		}
@@ -212,13 +85,13 @@ void serveone(){
 	fclose(fcmd);
 }
 
-void doserve(){
-	while(1){
+void doserve() {
+	while (1) {
 		serveone();
 	}
 }
 
-int main(){
+int main() {
 	doserve();
 	return 0;
 }
