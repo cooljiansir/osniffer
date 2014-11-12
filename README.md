@@ -1,4 +1,10 @@
 osniffer
-========
-
-sniffer run on openwrt
+=======
+FEATURE
+-------
+* Full Protocol Support
+####
+* Full Filter Support
+####
+* Graphical Statistic Results
+####
