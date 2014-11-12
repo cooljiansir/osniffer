@@ -1,33 +1,103 @@
-<div class="navigation-bar dark">
-    <div class="navigation-bar-content container">
-        <a href="index.html" class="element"><span class="icon-grid-view"></span> OpenWrt Sniffer <sup>1.0</sup></a>
-        <span class="element-divider"></span>
+	<div class="navigation-bar dark">
+	    <div class="navigation-bar-content container">
+		<a id="navindex" name="navindex" href="#" class="element"><span class="icon-grid-view"></span> OpenWrt Sniffer <sup>1.0</sup></a>
+		<span class="element-divider"></span>
+		<a id="navstart" name="navstart" href="#" class="element">START SERVER</a>
+		
+		<span class="element-divider"></span>
 
-        <a class="element1 pull-menu" href="#"></a>
-        <ul class="element-menu">
-            <li>
-                <a class="dropdown-toggle" href="#">Capture</a>
-                <ul class="dropdown-menu dark" data-role="dropdown">
-                    <li><a href="interfaces.html">Interfaces...</a></li>
-                    <li><a href="requirements.html">Capture Filters</a></li>
-                </ul>
-            </li>
-            <li>
-                <a class="dropdown-toggle"  href="#">Analyze</a>
-                <ul class="dropdown-menu dark" data-role="dropdown">
-                    <li><a href="tiles.html">Display Filters</a></li>
-                    <li><a href="tiles.html">Display Settings</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="#" class="dropdown-toggle">Statistics</a>
-                <ul class="dropdown-menu dark" data-role="dropdown">
-                    <li><a href="#">Flow</a></li>
-                </ul>
-            </li>
-            <li>
-                <a href="#" >About Us</a>
-            </li>
-        </ul>
-    </div>
-</div>
+		<a class="element1 pull-menu" href="#"></a>
+		<ul class="element-menu">
+		    <li>
+		        <a class="dropdown-toggle" href="#">Capture</a>
+		        <ul class="dropdown-menu dark" data-role="dropdown">
+		            <li><a id="navinflist" name="navinflist" href="#">Interfaces...</a></li>
+		            <li><a id="navcapfilter" name="navcapfilter" href="#">Capture Filters</a></li>
+		            <li><a id="navcaplist" name="navcaplist" href="#">Go</a></li>
+		        </ul>
+		    </li>
+		    <li>
+		        <a class="dropdown-toggle"  href="#">Analyze</a>
+		        <ul class="dropdown-menu dark" data-role="dropdown">
+		            <li><a href="#">Display Filters</a></li>
+		            <li><a href="#">Display Settings</a></li>
+		        </ul>
+		    </li>
+		    <li>
+		        <a href="#" class="dropdown-toggle">Statistics</a>
+		        <ul class="dropdown-menu dark" data-role="dropdown">
+		            <li><a href="#">Flow</a></li>
+		        </ul>
+		    </li>
+		    <li>
+		        <a href="#" >About Us</a>
+		    </li>
+		</ul>
+	    </div>
+	</div>
+
+	<div name="indexpage" id="indexpage" class="page_">
+	<div style="background: url(images/shark.jpg) top left no-repeat; background-size: cover; height: 450px;">
+	    <div class="container" style="padding: 50px 20px">
+		<h1 class="fg-white">OpenWrt Sniffer 1.0</h1>
+		<h2 class="fg-white">
+		    OpenWrt Sniffer a sniffer for OpenWrt<br /> with an web interface 
+		</h2>
+	    </div>
+	</div>
+
+	<div class="container">
+	    <div class="grid fluid">
+		<div class="row">
+		    <div class="span4 bg-amber padding20 text-center">
+		        <h2 class="fg-white">easy to use</h2>
+		    </div>
+		    <div class="span4 bg-green padding20 text-center">
+		        <h2 class="fg-white">less source</h2>
+		    </div>
+		    <div class="span4 bg-red padding20 text-center">
+		        <h2 class="fg-white">for router</h2>
+		    </div>
+		</div>
+	    </div>
+	</div>
+	</div>
+<script >
+		
+		$("#navindex").click(function(){
+			$(".page_").hide(500);
+			$("#indexpage").show(500);
+		});
+		$("#navinflist").click(function(){
+			$(".page_").hide(500);
+			$("#inflistpage").show(500);
+		});
+		$("#navcaplist").click(function(){
+			$(".page_").hide(500);
+			$("#caplistpage").show(500);
+		});
+		$("#navcapfilter").click(function(){
+			$(".page_").hide(500);
+			$("#filterpage").show(500);
+		});
+		$serveron = 0;
+		function onstart(){
+                        if($serveron==0){                                   
+                                $("#navstart").text("SERVER IS ON");                               
+                                $serveron=1;                                                       
+                                startserver();                              
+                        }
+		}
+		$("#navstart").click(onstart);
+		function startserver(){
+			$.getJSON( "/cgi-bin/OpenWrtSniffer?action=startserver", function( data ) {
+				if(data.result!='end'){
+					$("#navstart").text("START SERVER");
+					$serveron=0;
+				}
+			});
+		};
+		$(function(){
+			onstart();
+		});
+</script>
