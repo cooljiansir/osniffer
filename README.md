@@ -1,4 +1,9 @@
 osniffer
-========
+=======
+A sniffer on openwrt with a web interface
+-----------------------------------------
+###FEATURES
 
-sniffer run on openwrt
+* Full Protocol Support
+* Full Filter Support
+* Graphical Statistic Results

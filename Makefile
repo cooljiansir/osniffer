@@ -20,12 +20,10 @@ define Package/OpenWrtSniffer/description
 
 endef
 
-
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
 endef
-
 
 define Package/OpenWrtSniffer/install
 	$(INSTALL_DIR) $(1)/webroot/cgi-bin/
@@ -34,4 +32,4 @@ define Package/OpenWrtSniffer/install
 endef
 
 
-$(eval $(call BuildPackage,OpenWrtSniffer,+libpthread +libpcap))
+$(eval $(call BuildPackage,OpenWrtSniffer,+libpcap +libpthread))
