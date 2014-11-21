@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="product" content="Metro UI CSS Framework">
+    <meta name="description" content="Simple responsive css framework">
+    <meta name="author" content="Sergey S. Pimenov, Ukraine, Kiev">
+    <meta name="keywords" content="js, css, metro, framework, windows 8, metro ui">
+
+    <link href="css/metro-bootstrap.css" rel="stylesheet">
+    <link href="css/metro-bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/iconFont.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
+    <link href="css/local.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/jqtree.css">
+<!--    <link href="css/jquery.dataTables.css" rel="stylesheet">-->
+
+    
+    <link href="js/prettify/prettify.css" rel="stylesheet">
+
+    <!-- Load JavaScript Libraries -->
+    <script src="js/jquery/jquery.min.js"></script>
+    <script src="js/jquery/jquery.widget.min.js"></script>
+    <script src="js/jquery/jquery.mousewheel.js"></script>
+    <script src="js/prettify/prettify.js"></script>
+
+
+
+    <!-- Metro UI CSS JavaScript plugins -->
+    <script src="js/load-metro.js"></script>
+
+    <!-- Local JavaScript -->
+    <script src="js/docs.js"></script>
+    <script src="js/github.info.js"></script>
+    <script src="js/jquery.dataTables.js"></script>
+    <script src="js/jquery.stickytableheaders.js"></script>
+    <script src="js/tree.jquery.js"></script>
+
+
+
+
+    <title>OpenWrt Sniffer</title>
+
+    <style>
+    </style>
+</head>
+<body class="metro" style="background-color: #efeae3">
+    <header id="navheader" name="navheader" class="bg-dark" data-load="header.html"></header>
+	 <div name="indexpage" id="indexpage" class="page_">
+		<div style="background: url(images/shark.jpg) top left no-repeat; background-size: cover; height: 450px;">
+		    <div class="container" style="padding: 50px 20px">
+				<h1 class="fg-white">OpenWrt Sniffer 1.0</h1>
+				<h2 class="fg-white">
+				    OpenWrt Sniffer a sniffer for OpenWrt<br /> with a web interface 
+				</h2>
+		    </div>
+		</div>
+
+		<div class="container">
+		    <div class="grid fluid">
+				<div class="row">
+				    <div class="span4 bg-amber padding20 text-center">
+					<h2 class="fg-white">easy to use</h2>
+				    </div>
+				    <div class="span4 bg-green padding20 text-center">
+					<h2 class="fg-white">less source</h2>
+				    </div>
+				    <div class="span4 bg-red padding20 text-center">
+					<h2 class="fg-white">for router</h2>
+				    </div>
+				</div>
+		    </div>
+		</div>
+	</div>
+	<div name="inflistpage" id="inflistpage" class="container min-height page_">
+	    <h1>Interfaces</h1>
+            <table name="infstable" id="infstable" class="table striped bordered hovered">
+                <thead>
+                <tr>
+                    <th class="text-left">Selected</th>
+                    <th class="text-left">Device</th>
+                    <th class="text-left">Description</th>
+                    <th class="text-left">IP</th>
+                    <th class="text-left">Packets</th>
+                    <th class="text-left">Promiscuous Mode</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                </tbody>
+            </table>
+
+	</div>
+	<div name="filterpage" id="filterpage" class="container min-height page_">
+	    <h1>Capture Filters 
+	    </h1>
+	    <div class="input-control text size4"><input id="filterexpr1" name="filterexpr1" type="text"/></div>
+	    <div class="input-control text size4"><input id="filterexpr2" name="filterexpr2" value="and not ( port 81 and host 192.168.8.1 )" type="text"/></div>
+		<button id="filterbut" name="filterbut" class="large success"> S e t </button>
+		    <div id="filtererro" name="filtererro" class="span8">
+		        <div class="notice marker-on-top bg-darkRed">
+		            <div class="fg-white">Set filter failed</div>
+		        </div>
+		    </div>
+
+	    <table class="table hovered striped">
+                <thead>
+                <tr>
+                    <th class="text-left">Filter</th>
+                    <th class="text-left">Expression</th>
+                </tr>
+                </thead>
+                <tbody>
+		    <tr><td>Ethernet address 00:08:15:00:08:15</td><td>( ether host 00:08:15:00:08:15 )</td></tr>
+			<tr><td>Ethernet type 0x0806 (ARP)</td><td>ether proto 0x0806</td></tr>
+			<tr><td>No Broadcast and no Multicast</td><td>not broadcast and not multicast</td></tr>
+			<tr><td>No ARP</td><td>not arp</td></tr>
+			<tr><td>IP only</td><td>ip</td></tr>
+			<tr><td>IP address 192.168.0.1</td><td>host 192.168.0.1</td></tr>
+			<tr><td>IPX only</td><td>ipx</td></tr>
+			<tr><td>TCP only</td><td>tcp</td></tr>
+			<tr><td>UDP only</td><td>udp</td></tr>
+			<tr><td>TCP or UDP port 80 (HTTP)</td><td>port 80</td></tr>
+			<tr><td>HTTP TCP port (80)</td><td>tcp port http</td></tr>
+			<tr><td>No ARP and no DNS</td><td>not arp and port not 53</td></tr>
+			<tr><td>Non-HTTP and non-SMTP to/from www.wireshark.org</td><td>not port 80 and not port 25 and host www.wireshark.org</td></tr>
+                </tbody>
+            </table>
+	</div>
+	<div name="caplistpage" id="caplistpage" class="container min-height page_">
+
+	    <h1>Packages <button id="capstart" name="capstart" class="large success">Start <i class="icon-play"></i></button>
+		<button id="capstop" name="capstop" class="large warning">Stop <i class="icon-stop"></i></button>
+		<button id="capclear" name="capclear" class="large warning">Clear></button>
+	    </h1>
+    	    <div id="pkgtablediv" name="pkgtablediv">
+		    <table name="pkgtable" id="pkgtable" class="table hovered striped">
+			<thead >
+			<tr>
+			    <th class="text-left">No.</th>
+			    <th class="text-left">Time</th>
+			    <th class="text-left">Source</th>
+			    <th class="text-left">Destination</th>
+			    <th class="text-left">Protocol</th>
+			    <th class="text-left">Length</th>
+			    <th class="text-left">Info</th>
+			</tr>
+			</thead>
+			<tbody>
+			</tbody>
+		    </table>
+	    </div>
+	    <div id="ptldetail" name="ptldetail">
+		<div id="protree" name="protree"></div>
+	    </div>
+	    <div id="pkgdetail" name="pkgdetail" class="grid fluid">
+		<div class="row">
+			<div id="pkgdetail_1" name="pkgdetail_1" class="span1"></div>
+			<div id="pkgdetail_2" name="pkgdetail_2" class="span5"></div>
+			<div id="pkgdetail_3" name="pkgdetail_3" class="span5"></div>
+		</div>
+	    </div>
+	</div>
+
+
+    <div class="bg-dark" data-load="footer.html"></div>
+    <script src="js/hitua.js"></script>
+    <script >
+	$countcap = 0;
+	$pro_src = "";
+	$pro_des = "";
+	$pro_ = "";
+	$pro_info = "";
+	function showdatabin(data){
+		$str1 = "";
+		$str2 = "";
+		$str3 = "";
+		$zero = "0000";
+		for(i=0;i<data.length;i+=2){
+			if(i%32==0){
+				$istr = i.toString(16);
+				$str1 += "<div>"+$zero.substr($istr.length)+$istr+"</div>";
+				$str2 += "<div style=\"font:bold 1em \"宋体\",Arial,Times;\">";
+				$str3 += "<div>";
+			}
+			$str2 += "<div>"+data[i]+data[i+1]+"</div>";
+			$asc = parseInt(data[i]+data[i+1],16);
+			if($asc>=32&&$asc<=128)$tmp = String.fromCharCode($asc);	
+			else $tmp = ".";
+			$str3 += "<div>"+$tmp+"</div>";
+			if(i%32==30){
+				$str1+="</div>";
+				$str2+="</div>";
+				$str3+="</div>";
+			}
+		}
+		if((data.length%32)!=30){
+			$str1 +="</div>";
+			$str2 += "</div>";
+			$str3 += "</div>";
+		}
+		$("#pkgdetail_1").html($str1);
+		$("#pkgdetail_2").html($str2);
+		$("#pkgdetail_3").html($str3);
+	}
+	function highlighthex(begin,end){
+		$divs = $("#pkgdetail_2 >div >div");
+		$divs.removeClass("bg-clr-ylw");
+		$divs.slice(begin,end+1).addClass("bg-clr-ylw");
+		$divs = $("#pkgdetail_3 >div >div");
+		$divs.removeClass("bg-clr-ylw");
+		$divs.slice(begin,end+1).addClass("bg-clr-ylw");
+	}
+	function pro_ethernet(rawdata,data){
+		$des = rawdata[0]+rawdata[1]+":"+rawdata[2]+rawdata[3]+":"+rawdata[4]+rawdata[5]+":"+rawdata[6]+rawdata[7]+":"+rawdata[8]+rawdata[9]+":"+rawdata[10]+rawdata[11];
+		$src = rawdata[12]+rawdata[13]+":"+rawdata[14]+rawdata[15]+":"+rawdata[16]+rawdata[17]+":"+rawdata[18]+rawdata[19]+":"+rawdata[20]+rawdata[21]+":"+rawdata[22]+rawdata[23];
+		$typet={"0800":"IP","0801":"X.75 Internet","0802":"NBS Internet","0803":"ECMA Internet","0804":"Chaosnet","0805":"X.25 Level 3","0806":"ARP ： Address Resolution Protocol","0808":"Frame Relay ARP","6559":"Raw Frame Relay","8035":"DRARP：Dynamic RARP","8037":"Novell Netware IPX","809B":"EtherTalk","80D5":"IBM SNA Services over Ethernet","80F3":"AARP：AppleTalk Address Resolution Protocol","8100":"EAPS：Ethernet Automatic Protection Switching","8137":"IPX：Internet Packet Exchange","814C":"SNMP：Simple Network Management Protocol","86DD":"IPv6，Internet Protocol version 6","8809":"OAM","880B":"PPP：Point-to-Point Protocol","880C":"GSMP：General Switch Management Protocol","8847":"MPLS：Multi-Protocol Label Switching ","8848":"MPLS, Multi-Protocol Label Switching ","8863":"PPPoE：PPP Over Ethernet <Discovery Stage>","8864":"PPPoE，PPP Over Ethernet<PPP Session Stage>","88BB":"LWAPP：Light Weight Access Point Protocol","88CC":"LLDP：Link Layer Discovery Protocol","8E88":"EAP（EAPOL：EAP over LAN","9000":"Loopback","9100":"VLAN Tag Protocol Identifier","9200":"VLAN Tag Protocol Identifier"};
+		$type = rawdata[24]+rawdata[25]+rawdata[26]+rawdata[27];
+		data.push(
+		    {
+			label: 'Ethernet II, Src: '+$src+' Dst: '+$des, id: 1,begin_:0,end_:27,
+			children: [
+			    { label: 'Destination: '+$des, id: 2 ,begin_:0,end_:5},
+			    { label: 'Source: '+$src, id: 3 ,begin_:6,end_:11},
+			    { label: 'Type: '+$typet[$type]+' (0x'+$type+')', id: 3 ,begin_:12,end_:13}
+			]
+		});
+		$pro_src = $src;
+		$pro_des = $des;
+		$pro_ = $typet[$type];
+		$pro_info = "";
+		if($type=='0806'){
+			pro_arp(rawdata,data);
+		}
+	}
+	function pro_arp(rawdata,data){
+		$opt={"0001":"ARP request","0002":"ARP reply","0003":"RARP request","0004":"RARP reply","0005":"DRARP request","0006":"DRARP reply","0007":"DRARP Error","0008":"InARP request","0009":"InARP reply"};
+		$hdtype = rawdata[28]+rawdata[29]+rawdata[30]+rawdata[31];
+		$protype = rawdata[32]+rawdata[33]+rawdata[34]+rawdata[35];
+		$hdsize = rawdata[36]+rawdata[37];
+		$prosize = rawdata[38]+rawdata[39];
+		$opcode = rawdata[40]+rawdata[41]+rawdata[42]+rawdata[43];
+		$senderMAC = rawdata[44]+rawdata[45]+":"+rawdata[46]+rawdata[47]+":"+rawdata[48]+rawdata[49]+":"+rawdata[50]+rawdata[51]+":"+rawdata[52]+rawdata[53]+":"+rawdata[54]+rawdata[55];
+		$senderIp = parseInt(rawdata[56]+rawdata[57],16).toString()+"."+parseInt(rawdata[58]+rawdata[59],16).toString()+"."+parseInt(rawdata[60]+rawdata[61],16).toString()+"."+parseInt(rawdata[62]+rawdata[63],16).toString();
+		$tarMAC = rawdata[64]+rawdata[65]+":"+rawdata[66]+rawdata[67]+":"+rawdata[68]+rawdata[69]+":"+rawdata[70]+rawdata[71]+":"+rawdata[72]+rawdata[73]+":"+rawdata[74]+rawdata[75];
+		$tarIp =    parseInt(rawdata[76]+rawdata[77],16).toString()+"."+parseInt(rawdata[78]+rawdata[79],16).toString()+"."+parseInt(rawdata[80]+rawdata[81],16).toString()+"."+parseInt(rawdata[82]+rawdata[83],16).toString();
+		data.push(
+		    {
+			label: 'Address Resolution Protocol ('+$opt[$opcode]+')', id: 1,begin_:14,end_:41,
+			children: [
+			    { label: 'Hardware type: 0x'+$hdtype, id: 2 ,begin_:14,end_:15},
+			    { label: 'Protocol type: 0x'+$protype, id: 3 ,begin_:16,end_:17},
+			    { label: 'Hardware size: 0x'+$hdsize, id: 3 ,begin_:18,end_:18},
+			    { label: 'Protocol size: 0x'+$prosize, id: 3 ,begin_:19,end_:19},
+			    { label: 'Opcode: '+$opt[$opcode]+' (0x'+$opcode+')', id: 3 ,begin_:20,end_:21},
+			    { label: 'Sender MAC address: '+$senderMAC, id: 3 ,begin_:22,end_:27},
+			    { label: 'Sender IP address: '+$senderIp, id: 3 ,begin_:28,end_:31},
+			    { label: 'Target MAC address: '+$tarMAC, id: 3 ,begin_:32,end_:37},
+			    { label: 'Target IP address: '+$tarIp, id: 3 ,begin_:38,end_:41}
+			]
+		});		
+		$pro_src = $senderIp;
+		$pro_des = $tarIp;
+		//$pro_ = $typet[$type];
+		$pro_info = $opt[$opcode];
+	}
+	function showprotocol(rawdata){
+		var data = [];
+		pro_ethernet(rawdata,data);
+		$("#ptldetail").html("");
+		$("#ptldetail").html("<div id=\"protree\" name=\"protree\"></div>");
+		$("#protree").tree({
+		    data: data,
+		    autoOpen: true,
+		    dragAndDrop: true
+		});
+		$("#protree").bind(
+		    'tree.select',
+		    function(event) {
+			if (event.node) {
+			    var node = event.node;
+			    highlighthex(node.begin_,node.end_);
+			}
+		    }
+		);
+	}
+	function init(){
+		$(".page_").hide();
+		$("#indexpage").show();
+		$("#capstop").hide();
+		$("#filtererro").hide();
+		$("#pkgtable").stickyTableHeaders({ scrollableArea: $("#pkgtablediv")});
+		$("#capclear").click(function(){
+			$("#pkgtable tbody").html("");
+			$countcap = 0;
+			$capdata=[];
+			
+		});
+		$("#capstart").click(function(){
+			$("#capstart").hide();
+			$("#capstop").show();
+			$.getJSON( "/cgi-bin/OpenWrtSniffer?action=opencap", function( data ) {});
+		});
+		$("#capstop").click(function(){
+			$("#capstart").show();
+			$("#capstop").hide();
+			$.getJSON( "/cgi-bin/OpenWrtSniffer?action=closecap", function( data ) {});
+		});
+		$("#filterbut").click(function(){
+			var expr = $("#filterexpr1").val()+$("#filterexpr2").val();
+			$.getJSON( "/cgi-bin/OpenWrtSniffer?action=setfilter&expr="+expr, function( data ) {
+				if(data.result!='success'){
+					$("#filtererro").show();
+				}else{
+					$("#filtererro").hide();
+					var not = $.Notify({
+						caption: "Set Filter SUCCEED!",
+						content: "Now,Just Go and Capture!",
+						timeout: 3000 ,
+						style  : {background: 'green', color: 'white'}
+					});
+
+				}
+			});
+		});
+		//pkgtable = $("#pkgtable").DataTable({paging:false,searching:false});
+		getcap();
+	};
+	function getcap(){
+            $.getJSON( "/cgi-bin/OpenWrtSniffer?action=getcap", function( data ) {
+                    $.each(data,function(i,data_i){
+			//pkgtable.row.add([data_i.no,data_i.time,data_i.src,data_i.des,data_i.pro,data_i].len,data_i.inf);
+			if(i>0){
+				$countcap++;
+				$id = "table_tr_" + $countcap.toString();
+				da=[];
+				pro_ethernet(data_i.data,da);
+				$("#pkgtable tbody").append("<tr id=\""+$id+"\" name=\""+$id+"\"><td>"+$countcap+"</td><td>"+data_i.time+"</td><td>"+$pro_src+"</td><td>"+$pro_des+"</td><td>"+$pro_+"</td><td>"+data_i.data.length+"</td><td>"+$pro_info+"</td></tr>");
+				$("#pkgtablediv").scrollTop($("#pkgtable").height());
+				$("#"+$id).click(function(){
+					showdatabin(data_i.data);
+					showprotocol(data_i.data);
+				});
+			}
+		    });
+		    getcap();
+            })
+	}
+	function getinflist(){
+		$.getJSON( "/cgi-bin/OpenWrtSniffer?action=inter_list", function( data ) {
+			$("#infstable tbody").html("");
+			$.each(data,function(i,data_i){
+				$ips="";
+				$.each(data_i.ips,function(j,ip_j){
+					$ips += ip_j.ip +"</br>";
+				});
+				$s1="";
+				if(data_i.selected=="1")$s1="checked";
+				$s2="";
+				if(data_i.pmode=="1")$s2="checked";
+				$("#infstable tbody").append("<tr><td><div class=\"input-control switch\"><label><input type=\"checkbox\" "+$s1+" /><span class=\"check\"></span></label></div></td><td>"+data_i.name+"</td><td class=\"right\">"+data_i.description+"</td><td class=\"right\">"+$ips+"</td><td class=\"right\">323</td><td class=\"right\"><div class=\"input-control switch\"><label><input type=\"checkbox\" "+$s2+"/><span class=\"check\"></span></label></div></td></tr>");
+			});
+			$("#infstable tbody tr td:first-child input[type='checkbox']").click(function(){
+				name=$(this).parents("td").next().text();
+				$.getJSON( "/cgi-bin/OpenWrtSniffer?action=switch_select&name="+name, function( data ) {
+					if(data.result!='success'){
+						settingfailed();
+					}
+				})
+				.fail(function(){
+					settingfailed();
+				});
+			});
+			$("#infstable tbody tr td:last-child input[type='checkbox']").click(function(){
+				name=$(this).parents("td").prev().prev().prev().prev().text();
+				$.getJSON( "/cgi-bin/OpenWrtSniffer?action=switch_pmode&name="+name, function( data ) {
+					if(data.result!='success'){
+						settingfailed();
+					}
+				})
+				.fail(function(){
+					settingfailed();
+				});
+			});
+		});
+	}
+	function settingfailed(){
+	$.Dialog({
+		shadow: true,
+		overlay: false,
+		icon: '<span class="icon-rocket"></span>',
+		title: 'Error',
+		width: 500,
+		padding: 10,
+		content: 'setting failed'
+	    });
+	};
+	$(document).ready(function(){
+		init();
+		
+	});
+
+    </script>
+</body>
+</html>
