@@ -301,6 +301,7 @@
 			$("#capstart").hide();
 			$("#capstop").show();
 			$.getJSON( "/cgi-bin/OpenWrtSniffer?action=opencap", function( data ) {});
+			getcap();
 		});
 		$("#capstop").click(function(){
 			$("#capstart").show();
@@ -324,13 +325,10 @@
 				}
 			});
 		});
-		//pkgtable = $("#pkgtable").DataTable({paging:false,searching:false});
-		getcap();
 	};
 	function getcap(){
             $.getJSON( "/cgi-bin/OpenWrtSniffer?action=getcap", function( data ) {
                     $.each(data,function(i,data_i){
-			//pkgtable.row.add([data_i.no,data_i.time,data_i.src,data_i.des,data_i.pro,data_i].len,data_i.inf);
 			if(i>0){
 				$countcap++;
 				$id = "table_tr_" + $countcap.toString();
