@@ -18,6 +18,6 @@
 #define CMD_CLOSECAP "closecap"
 #define CMD_SETFILTER "setfilter"
 
-#define PATH_OSNIFFERD "/webroot/cgi-bin/osnifferd"
+#define PATH_OSNIFFERD "/webroot/cgi-bin/snifferd"
 
 #endif

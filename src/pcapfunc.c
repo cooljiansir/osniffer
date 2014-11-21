@@ -222,9 +222,10 @@ void setfilter(char *expr) {
 }
 void startserver() {
 	int fd = open(FILE_LCK,O_WRONLY|O_CREAT);
+	int res;
 	if(fd!=-1){
 		if(flock(fd,LOCK_EX|LOCK_NB)==0){
-			system(PATH_OSNIFFERD);
+			res = system(PATH_OSNIFFERD);
 		}else{
 			flock(fd,LOCK_EX);//wait snifferd to finish
 		}
