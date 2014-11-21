@@ -32,4 +32,4 @@ define Package/OpenWrtSniffer/install
 endef
 
 
-$(eval $(call BuildPackage,OpenWrtSniffer,+libpcap +libpthread))
+$(eval $(call BuildPackage,OpenWrtSniffer))

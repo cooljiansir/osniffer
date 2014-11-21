@@ -37,8 +37,13 @@ void _ERROR_() {
 }
 
 void getlist() {
-	FILE * pcmd = fopen(P_FIFO, "w");
+	FILE * pcmd;
 	FILE * pout;
+	if(access(P_FIFO, F_OK) != 0){
+		_ERROR_();
+		return;
+	}
+	pcmd = fopen(P_FIFO,"w");
 	if (pcmd == NULL) {
 		_ERROR_();
 		return;
@@ -58,8 +63,13 @@ void getlist() {
 	fclose(pout);
 }
 void switch_select(char *name) {
-	FILE * pcmd = fopen(P_FIFO, "w");
-	FILE * pout;
+        FILE * pcmd;
+        FILE * pout;
+        if(access(P_FIFO, F_OK) != 0){
+                _ERROR_();
+                return;
+        }
+        pcmd = fopen(P_FIFO,"w");
 	if (pcmd == NULL) {
 		_ERROR_();
 		return;
@@ -82,8 +92,13 @@ void switch_select(char *name) {
 
 }
 void switch_pmode(char *name) {
-	FILE * pcmd = fopen(P_FIFO, "w");
-	FILE * pout;
+        FILE * pcmd;
+        FILE * pout;
+        if(access(P_FIFO, F_OK) != 0){
+                _ERROR_();
+                return;
+        }
+        pcmd = fopen(P_FIFO,"w");
 	if (pcmd == NULL) {
 		_ERROR_();
 		return;
@@ -105,8 +120,13 @@ void switch_pmode(char *name) {
 	fclose(pout);
 }
 void opencap() {
-	FILE * pcmd = fopen(P_FIFO, "w");
-	FILE * pout;
+        FILE * pcmd;
+        FILE * pout;
+        if(access(P_FIFO, F_OK) != 0){
+                _ERROR_();
+                return;
+        }
+        pcmd = fopen(P_FIFO,"w");
 	if (pcmd == NULL) {
 		_ERROR_();
 		return;
@@ -126,8 +146,13 @@ void opencap() {
 	fclose(pout);
 }
 void closecap() {
-	FILE * pcmd = fopen(P_FIFO, "w");
-	FILE * pout;
+        FILE * pcmd;
+        FILE * pout;
+        if(access(P_FIFO, F_OK) != 0){
+                _ERROR_();
+                return;
+        }
+        pcmd = fopen(P_FIFO,"w");
 	if (pcmd == NULL) {
 		_ERROR_();
 		return;
@@ -162,9 +187,14 @@ void getcap() {
 	fclose(pout);
 }
 void setfilter(char *expr) {
-	FILE * pcmd = fopen(P_FIFO, "w");
-	FILE * pout;
 	int i;
+        FILE * pcmd;
+        FILE * pout;
+        if(access(P_FIFO, F_OK) != 0){
+                _ERROR_();
+                return;
+        }
+        pcmd = fopen(P_FIFO,"w");
 	if (pcmd == NULL) {
 		_ERROR_();
 		return;
@@ -191,19 +221,14 @@ void setfilter(char *expr) {
 	fclose(pout);
 }
 void startserver() {
-	FILE *plck;
-	//snifferd is not running
-	if (access(FILE_LCK, F_OK) != 0) {
-		plck = fopen(FILE_LCK,"w");
-		fclose(plck);
-		system("./snifferd");
-	}
-	//snifferd is already start
-	else{
-		while(access(FILE_LCK, F_OK) == 0){
-			sleep(1);
+	int fd = open(FILE_LCK,O_WRONLY|O_CREAT);
+	if(fd!=-1){
+		if(flock(fd,LOCK_EX|LOCK_NB)==0){
+			system(PATH_OSNIFFERD);
+		}else{
+			flock(fd,LOCK_EX);//wait snifferd to finish
 		}
 	}
+	close(fd);
 	printf("{\"result\":\"end\"}");
-	remove(FILE_LCK);
 }
