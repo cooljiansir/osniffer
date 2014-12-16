@@ -33,6 +33,7 @@
     <script src="js/jquery.dataTables.js"></script>
     <script src="js/jquery.stickytableheaders.js"></script>
     <script src="js/tree.jquery.js"></script>
+    <script src="js/protocal.js"></script>
     <title>OpenWrt Sniffer</title>
     <style>
     </style>
@@ -140,7 +141,7 @@
 			</tbody>
 		    </table>
 	    </div>
-	    <div id="ptldetail" name="ptldetail">
+	    <div id="ptldetail" name="ptldetail" style="height:150px;overflow:auto; ">
 		<div id="protree" name="protree"></div>
 	    </div>
 	    <div id="pkgdetail" name="pkgdetail" class="grid fluid">
@@ -202,26 +203,26 @@
 		$divs.slice(begin,end+1).addClass("bg-clr-ylw");
 	}
 	function pro_ethernet(rawdata,data){
-		$des = rawdata[0]+rawdata[1]+":"+rawdata[2]+rawdata[3]+":"+rawdata[4]+rawdata[5]+":"+rawdata[6]+rawdata[7]+":"+rawdata[8]+rawdata[9]+":"+rawdata[10]+rawdata[11];
-		$src = rawdata[12]+rawdata[13]+":"+rawdata[14]+rawdata[15]+":"+rawdata[16]+rawdata[17]+":"+rawdata[18]+rawdata[19]+":"+rawdata[20]+rawdata[21]+":"+rawdata[22]+rawdata[23];
-		$typet={"0800":"IP","0801":"X.75 Internet","0802":"NBS Internet","0803":"ECMA Internet","0804":"Chaosnet","0805":"X.25 Level 3","0806":"ARP ： Address Resolution Protocol","0808":"Frame Relay ARP","6559":"Raw Frame Relay","8035":"DRARP：Dynamic RARP","8037":"Novell Netware IPX","809B":"EtherTalk","80D5":"IBM SNA Services over Ethernet","80F3":"AARP：AppleTalk Address Resolution Protocol","8100":"EAPS：Ethernet Automatic Protection Switching","8137":"IPX：Internet Packet Exchange","814C":"SNMP：Simple Network Management Protocol","86DD":"IPv6，Internet Protocol version 6","8809":"OAM","880B":"PPP：Point-to-Point Protocol","880C":"GSMP：General Switch Management Protocol","8847":"MPLS：Multi-Protocol Label Switching ","8848":"MPLS, Multi-Protocol Label Switching ","8863":"PPPoE：PPP Over Ethernet <Discovery Stage>","8864":"PPPoE，PPP Over Ethernet<PPP Session Stage>","88BB":"LWAPP：Light Weight Access Point Protocol","88CC":"LLDP：Link Layer Discovery Protocol","8E88":"EAP（EAPOL：EAP over LAN","9000":"Loopback","9100":"VLAN Tag Protocol Identifier","9200":"VLAN Tag Protocol Identifier"};
-		$type = rawdata[24]+rawdata[25]+rawdata[26]+rawdata[27];
-		data.push(
-		    {
-			label: 'Ethernet II, Src: '+$src+' Dst: '+$des, id: 1,begin_:0,end_:27,
-			children: [
-			    { label: 'Destination: '+$des, id: 2 ,begin_:0,end_:5},
-			    { label: 'Source: '+$src, id: 3 ,begin_:6,end_:11},
-			    { label: 'Type: '+$typet[$type]+' (0x'+$type+')', id: 4 ,begin_:12,end_:13}
-			]
-		});
-		$pro_src = $src;
-		$pro_des = $des;
-		$pro_ = $typet[$type];
+		var p=new Ethernet(rawdata);
+		$pro_src = p.Source.res;
+		$pro_des = p.Destination.res;
+		$pro_ = p.Type.res;
 		$pro_info = "";
-		if($type=='0806'){
-			pro_arp(rawdata,data);
-		}
+		while(p.name){
+          	var field=allPrpos(p, function(a, b, o) {
+                var lab="";
+                if(b.head)lab+=b.head+" = ";//显示 二进制位 .1.. ....
+                if(!/^\d+$/.test(a))lab+=a+': ';//有含意的才显示名字
+                return { label : lab+b.res, begin_ : parseInt(b.beg/2), end_ : parseInt((b.end-1)/2),children: o};
+            });
+          	data.push({
+	            label: p.name+", "+p.res,
+	            begin_: parseInt(p.beg/2),
+	            end_: parseInt((p.end-1)/2),
+	            children: field
+          	});
+          	p=p.upperProtocal();
+        }
 	}
 	function pro_arp(rawdata,data){
 		$opt={"0001":"ARP request","0002":"ARP reply","0003":"RARP request","0004":"RARP reply","0005":"DRARP request","0006":"DRARP reply","0007":"DRARP Error","0008":"InARP request","0009":"InARP reply"};
