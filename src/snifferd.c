@@ -8,7 +8,7 @@
 #include "envi.h"
 #include "pcapserver.h"
 
-//#define DEBUG
+#define DEBUG
 
 /*
  * this is the main requests router
@@ -80,7 +80,9 @@ void serveone() {
 				setfilter(param[1]);
 			}
 		}
+#ifndef DEBUG
 		fclose(fout);
+#endif
 	}
 	fclose(fcmd);
 }
